@@ -4,9 +4,10 @@
 IFS=',' read -ra BLOCK_SIZES <<< "$1"
 IFS=',' read -ra IO_DEPTHS <<< "$2"
 IFS=',' read -ra ACCESS_PATTERNS <<< "$3"
+FILE_SIZE="$4"
+RUNTIME="$5"
 
 TEST_FILE="/data/fio_test_file"
-FILE_SIZE="1G"
 
 CSV_FILE="/app/fio_summary.csv"
 echo "Block Size,Access Pattern,I/O Depth,IOPS,Bandwidth (MB/s),Latency (us)" > "${CSV_FILE}"
@@ -22,7 +23,7 @@ for bs in "${BLOCK_SIZES[@]}"; do
                             --direct=1 \
                             --bs="${bs}" \
                             --ioengine=io_uring \
-                            --runtime=10 \
+                            --runtime="${RUNTIME}" \
                             --time_based \
                             --group_reporting \
                             --size="${FILE_SIZE}" \

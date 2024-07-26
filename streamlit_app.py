@@ -4,13 +4,15 @@ import os
 import subprocess
 
 # Function to run FIO benchmark
-def run_fio_benchmark(block_sizes, io_depths, access_patterns):
+def run_fio_benchmark(block_sizes, io_depths, access_patterns, file_size, runtime):
     try:
         command = [
             "/app/fio_benchmark.sh",
             ",".join(block_sizes),
             ",".join(map(str, io_depths)),
-            ",".join(access_patterns)
+            ",".join(access_patterns),
+            file_size,
+            str(runtime)
         ]
         result = subprocess.run(command, check=True, capture_output=True, text=True)
         st.success("Benchmark completed successfully!")
@@ -37,27 +39,34 @@ def main():
     # Parameter selection
     st.header("Select Benchmark Parameters")
 
-    block_sizes = st.multiselect(
-        "Block Sizes",
-        options=["4k", "16k", "32k", "64k", "128k"],
-        default=["4k", "128k"]
-    )
+    col1, col2 = st.columns(2)
 
-    io_depths = st.multiselect(
-        "I/O Depths",
-        options=[1, 4, 16, 32, 64, 128, 256],
-        default=[1, 16, 256]
-    )
+    with col1:
+        block_sizes = st.multiselect(
+            "Block Sizes",
+            options=["4k", "16k", "32k", "64k", "128k"],
+            default=["4k", "128k"]
+        )
 
-    access_patterns = st.multiselect(
-        "Access Patterns",
-        options=["read", "write", "readwrite", "randread", "randwrite"],
-        default=["read", "write"]
-    )
+        io_depths = st.multiselect(
+            "I/O Depths",
+            options=[1, 4, 16, 32, 64, 128, 256],
+            default=[1, 16, 256]
+        )
+
+        access_patterns = st.multiselect(
+            "Access Patterns",
+            options=["read", "write", "readwrite", "randread", "randwrite"],
+            default=["read", "write"]
+        )
+
+    with col2:
+        file_size = st.text_input("File Size (e.g., 1G, 512M)", "1G")
+        runtime = st.number_input("Runtime (seconds)", min_value=1, value=10)
 
     if st.button("Run Benchmark"):
         with st.spinner("Running FIO benchmark..."):
-            run_fio_benchmark(block_sizes, io_depths, access_patterns)
+            run_fio_benchmark(block_sizes, io_depths, access_patterns, file_size, runtime)
 
     # Load and display results
     df = load_data()

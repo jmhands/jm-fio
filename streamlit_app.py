@@ -80,11 +80,13 @@ def main():
         for pattern in df["Access Pattern"].unique():
             st.write(f"{pattern.capitalize()} Access Pattern")
             pattern_data = df[df["Access Pattern"] == pattern]
-
-            chart_data = pattern_data.pivot(index="I/O Depth", columns="Block Size", values="Bandwidth (MB/s)")
-            chart_data = chart_data.sort_index()
-
-            st.bar_chart(chart_data)
+            st.bar_chart(
+                pattern_data,
+                x="I/O Depth",
+                y="Bandwidth (MB/s)",
+                color="Block Size",
+                stack=False
+            )
 
         # Display table
         st.subheader("Detailed Results")
